@@ -1,0 +1,45 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: zeropods-dev-down
+spec:
+  schedule: "2,6,10,14,18,22,26,30,34,38,42,46,50,54,58 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: zeropods
+            image: zeropods:latest
+            imagePullPolicy: Never
+            args:
+            - /usr/local/bin/zeropods --action down -n dev
+          restartPolicy: Never
+          serviceAccount: zeropods
+          serviceAccountName: zeropods
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: zeropods-dev-up
+spec:
+  schedule: "4,8,12,16,20,24,28,32,36,40,44,48,52,56 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: zeropods
+            image: zeropods:latest
+            imagePullPolicy: Never
+            args:
+            - /usr/local/bin/zeropods --action up -n dev
+          restartPolicy: Never
+          serviceAccount: zeropods
+          serviceAccountName: zeropods 

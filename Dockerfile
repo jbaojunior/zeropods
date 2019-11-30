@@ -1,11 +1,15 @@
+FROM golang:latest as build
+
+WORKDIR /go/src/github.com/jbaojunior/zeropods
+COPY . .
+
+ENV GO111MODULE=on
+ENV CGO_ENABLED=0
+RUN rm -f go.mod go.sum && go mod init && go get k8s.io/client-go@kubernetes-1.15.3
+RUN go build -o /tmp/zeropods
+
 FROM alpine:3.10
+COPY --from=build /tmp/zeropods /usr/local/bin/
 
-# Image To build a application to do scale in a k8s deployment 
-LABEL maintainer="jbaojunior@gmail.com"
-
-RUN apk update && apk add bash && rm -rf /var/cache/apk/*
-
-ADD camunda-autoscaler /usr/local/bin/
-RUN chmod +x /usr/local/bin/camunda-autoscaler
-
-ENTRYPOINT ["/usr/local/bin/camunda-autoscaler"]
+CMD ["/usr/local/bin/zeropods -h"]
+ENTRYPOINT ["/bin/sh", "-c"]
